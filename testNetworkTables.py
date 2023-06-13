@@ -1,24 +1,31 @@
 #from cscore import CameraServer, VideoSource, UsbCamera, MjpegServer
+import time
 from ntcore import NetworkTableInstance, EventFlags
 
 # from visionInput import VisionInput
+print("hello")
 inst = NetworkTableInstance.getDefault()
+inst.startClient4("python")
+inst.setServerTeam(2473)
 # inst.startServer('10.24.73.2')
-
+num = 1
 
 if __name__ == "__main__":
-    table = inst.getTable("datatable")
 
-    inst.startClient4("python")
-    inst.setServerTeam(2473)
-    
-    print("here")
-    xPub = table.getDoubleTopic("x").publish()
-    xPub.set(1)
+    while True:
+        table = inst.getTable("datatable")
+        
+        print("here")
+        xPub = table.getDoubleTopic("x").publish()
+        xPub.set(num)
+        num = num + 1
 
-    xSub = table.getDoubleTopic("x").subscribe(0)
-    print(xSub.get())
+        xSub = table.getDoubleTopic("x").subscribe(0)
+        print(xSub.get())
+        time.sleep(0.05)
 
+    # while True:
+    #     time.sleep(10)
     
 
     #print(xPub.getTopic().getProperties())
