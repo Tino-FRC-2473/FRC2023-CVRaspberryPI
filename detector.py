@@ -7,5 +7,7 @@ class Detector():
 
     def detectAprilTag(self, img):
         return self.aprilTagDetector.detect(img)
+    
+    
 
     
