@@ -1,0 +1,9 @@
+pyntcore
+opencv-python
+numpy
+cmake
+apriltag
+robotpy[cscore]
+keras
+scikit-learn
+catboost
