@@ -2,13 +2,11 @@
 import time
 from ntcore import NetworkTableInstance, EventFlags
 from visionInput import VisionInput
-from detector import Detector
 
 inst = NetworkTableInstance.getDefault()
 inst.startClient4("python")
 inst.setServerTeam(2473)
 input = VisionInput(70, 1920, 1080)
-detector = Detector()
 # inst.startServer('10.24.73.2')
 num = 1
 
@@ -17,10 +15,9 @@ if __name__ == "__main__":
     while True:
         table = inst.getTable("datatable")
         img = input.get_frame_gray()
-        res = detector.detectAprilTag(img)
         print("here")
         xPub = table.getDoubleTopic("x").publish()
-        xPub.set(len(res))
+        xPub.set(num)
         num = num + 1
 
         xSub = table.getDoubleTopic("x").subscribe(0)
