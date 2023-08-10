@@ -4,8 +4,6 @@ from ntcore import NetworkTableInstance, EventFlags
 from visionInput import VisionInput
 from detector import Detector
 
-# from visionInput import VisionInput
-print("hello")
 inst = NetworkTableInstance.getDefault()
 inst.startClient4("python")
 inst.setServerTeam(2473)
