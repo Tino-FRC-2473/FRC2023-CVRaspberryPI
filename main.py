@@ -1,29 +1,31 @@
-#from cscore import CameraServer, VideoSource, UsbCamera, MjpegServer
 import time
-from ntcore import NetworkTableInstance, EventFlags
+from networktables import NetworkTables
 from visionInput import VisionInput
+from detector import Detector
 
-inst = NetworkTableInstance.getDefault()
-inst.startClient4("python")
-inst.setServerTeam(2473)
+#table = NetworkTablesInstance(server='10.24.73.6')
+NetworkTables.initialize(server='10.24.73.6')
+#datatable = NetworkTables.getTable('datatable')
+#datatable = NetworkTables.getTable('SmartDashboard')
 input = VisionInput(70, 1920, 1080)
-# inst.startServer('10.24.73.2')
+detector = Detector()
+
 num = 1
 
 if __name__ == "__main__":
 
     while True:
-        table = inst.getTable("datatable")
         img = input.get_frame_gray()
-        print("here")
-        xPub = table.getDoubleTopic("x").publish()
-        xPub.set(num)
+        datatable = NetworkTables.getTable('datatable')
+        result = detector.detectAprilTag(img)
+        print(img.sum())
+        datatable.putNumber('x', img.sum())
+
+        x = datatable.getNumber('x', -1)
+        print(x)
         num = num + 1
 
-        xSub = table.getDoubleTopic("x").subscribe(0)
-        print(xSub.get())
         time.sleep(0.05)
-
     # while True:
     #     time.sleep(10)
     
