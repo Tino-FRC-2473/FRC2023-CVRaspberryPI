@@ -3,31 +3,33 @@ import numpy as np
 
 #DUMMY VISION INPUT (does not include fov and res calib)
 
-class VisionInput:
+cclass VisionInput:
     frame = None
     
-    def __init__(self, res, FOV): #a little confused abt the importance of FOV and resolution w/out calibration in the detection pipeline...? - Bhargav
-        self.res = res
-        self.FOV = FOV
+    def __init__(self, fov, res: tuple):
+        self.fov = fov
+        self.w = res[0]
+        self.h = res[1]
         
         self.cap = cv2.VideoCapture(0)
 
-        if not self.cap.isOpened():
-            print("failed to init camera")
-            exit
-
-    def calibrate():
+    def calibrate(self):
         pass
 
+    #for demo
     def start(self):
         global frame
 
         while True:
+            if not self.cap.isOpened():
+                print("failed to init camera")
+                exit
+            
             cv2.imshow('frame', self.getFrame())
+
             if (cv2.waitKey(1) == ord('q')):
                 break
             
-            #for testing purposes
             if (cv2.waitKey(1) == ord('p')):
                 print(self.getFrame())
             
@@ -38,11 +40,10 @@ class VisionInput:
     def getFrame(self):
         ret, frame = self.cap.read()
         
+        if not ret: print('frame malf'); exit
         
-        if not ret:
-            print('frame not reached')
-            exit
-        
-        #frame = cv2.resize(frame, (600, int(600*frame.shape[1]/frame.shape[0])))
-
-        return np.asarray(frame)
+        fr = cv2.resize(frame, (self.w, self.h), interpolation=cv2.INTER_AREA)
+        return fr
+    
+    def getGrayFrame(self):
+        return cv2.cvtColor(self.getFrame(self), cv2.COLOR_BGR2GRAY)
