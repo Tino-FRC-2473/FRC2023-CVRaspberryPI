@@ -27,7 +27,6 @@ class Detector:
             "CUBE": color_dict_HSV['cube'],
             "CONE": color_dict_HSV['cone']
         }
-        
         for object in objectsToDetect:
             hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(hsv_frame, np.array(colors[object][1]), np.array(colors[object][0]))
@@ -35,13 +34,13 @@ class Detector:
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
             morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
         
-            contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2:]
 
             x = 0
             y = 0
             w = 0
             h = 0
-
+            print(object + ": " + len(contours))
             for contour in contours:
                 tx,ty,tw,th = cv2.boundingRect(contour)
                 print(tx, ty, tw, th)
@@ -53,7 +52,7 @@ class Detector:
 
             if (object in objectsToDetect): results[object] = [x, y, w, h]
 
-            print("X: %2d, Y: %2d, W: %2d, H: %2d" % (x, y, w, h))
+            #print("X: %2d, Y: %2d, W: %2d, H: %2d" % (x, y, w, h))
 
             #annotate contour
             # cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 0, 255), 2)
@@ -68,5 +67,5 @@ class Detector:
             # cv2.destroyAllWindows()
 
             results[object] = Target([x, y, w, h], object)
-
+        
         return results

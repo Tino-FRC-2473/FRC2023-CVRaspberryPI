@@ -6,6 +6,5 @@ from detector import Detector
 cam = cv2.VideoCapture(0)
 d = Detector()
 while True:
-
     ret,frame = cam.read()
     d.detect(np.asarray(frame), ["CUBE", "CONE"])
