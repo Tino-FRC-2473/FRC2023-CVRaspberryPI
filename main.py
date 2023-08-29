@@ -7,4 +7,4 @@ cam = cv2.VideoCapture(0)
 d = Detector()
 while True:
     ret,frame = cam.read()
-    d.detectGameElement(np.asarray(cone), ["CUBE", "CONE"])
+    d.detectGameElement(np.asarray(frame), ["CUBE", "CONE"])

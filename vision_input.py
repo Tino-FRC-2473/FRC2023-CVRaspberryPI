@@ -3,7 +3,7 @@ import numpy as np
 
 #DUMMY VISION INPUT (does not include fov and res calib)
 
-cclass VisionInput:
+class VisionInput:
     frame = None
     
     def __init__(self, fov, res: tuple):
