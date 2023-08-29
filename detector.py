@@ -1,7 +1,3 @@
-import cv2
-import numpy as np
-from target import Target
-
 class Detector:
 
     def __init__(self):
@@ -23,7 +19,11 @@ class Detector:
             "CUBE": [[158, 255, 255], [90, 50, 70]],
             "CONE": [[25, 255, 255], [22, 50, 70]]
         }
+<<<<<<< Updated upstream
         
+=======
+
+>>>>>>> Stashed changes
         for object in objectsToDetect:
             hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(hsv_frame, np.array(colors[object][1]), np.array(colors[object][0]))
@@ -31,6 +31,7 @@ class Detector:
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
             morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 
+<<<<<<< Updated upstream
 
             if (object == "CUBE"):
                 contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -151,6 +152,8 @@ class Detector:
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
             morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
         
+=======
+>>>>>>> Stashed changes
             contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
             x = 0
@@ -180,11 +183,16 @@ class Detector:
                 cv2.imshow("o", frame)
                 if cv2.waitKey(0):
                     break
+<<<<<<< Updated upstream
             
+=======
+
+>>>>>>> Stashed changes
             cv2.destroyAllWindows()
 
             results[object] = Target([x, y, w, h], object)
 
+<<<<<<< Updated upstream
         return results
     
 
@@ -194,3 +202,6 @@ class Detector:
         results = []
         return results
 
+=======
+            return results
+>>>>>>> Stashed changes
