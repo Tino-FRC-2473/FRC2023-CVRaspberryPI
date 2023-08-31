@@ -13,7 +13,7 @@ class Detector:
 
 
               #merge of blue and purple
-              'cube': [[158, 255, 255], [90, 50, 70]],
+              'cube': [[158, 255, 255], [110, 100, 100]],
               'cone': [[30, 255, 255], [21, 50, 70]]
         }
         #================================================================================
@@ -30,7 +30,7 @@ class Detector:
         for object in objectsToDetect:
             hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(hsv_frame, np.array(colors[object][1]), np.array(colors[object][0]))
-
+            mask = cv2.medianBlur(mask, 11)
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
             morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
         
@@ -40,32 +40,39 @@ class Detector:
             y = 0
             w = 0
             h = 0
-            print(object + ": " + len(contours))
+            
             for contour in contours:
                 tx,ty,tw,th = cv2.boundingRect(contour)
-                print(tx, ty, tw, th)
+                ratio = th/tw
+                #print(tx, ty, tw, th)
                 if (tw * th > w * h and not (tx == 0 and ty == 0 and tw == frame.shape[1] and th == frame.shape[0])):
-                    x = tx
-                    y = ty
-                    w = tw
-                    h = th
-
+                    passed = False
+                    if object == "CUBE":
+                        if (tw * th > 200):
+                            passed = True
+                    if object == "CONE":
+                        passed = True
+                    if passed:
+                        x = tx
+                        y = ty
+                        w = tw
+                        h = th
+            
             if (object in objectsToDetect): results[object] = [x, y, w, h]
 
             #print("X: %2d, Y: %2d, W: %2d, H: %2d" % (x, y, w, h))
 
             #annotate contour
-            # cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 0, 255), 2)
-            # cv2.circle(frame, (int(x + w/2), int(y + h/2)), radius = 0, color = (0, 0, 255), thickness=5)
-            # cv2.putText(frame, object, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2, cv2.LINE_AA)
+            cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 0, 255), 2)
+            cv2.circle(frame, (int(x + w/2), int(y + h/2)), radius = 0, color = (0, 0, 255), thickness=5)
+            cv2.putText(frame, object, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2, cv2.LINE_AA)
 
-            # while True:
-            #     cv2.imshow("o", frame)
-            #     if cv2.waitKey(0):
-            #         break
+            while True:
+                 cv2.imshow("o", frame)
+                 if cv2.waitKey(0):
+                     break
             
-            # cv2.destroyAllWindows()
+            cv2.destroyAllWindows()
 
             results[object] = Target([x, y, w, h], object)
-        
         return results
