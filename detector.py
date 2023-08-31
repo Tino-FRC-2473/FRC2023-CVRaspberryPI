@@ -31,7 +31,7 @@ class Detector:
 #              standard deviation h: 0.014804869677712107, 2.64
 #               tandard deviation s: 0.10461448099913015, 26.68
 #               standard deviation v: 0.006726860745578783, 1.72
-            "CUBE": [[158, 255, 255], [90, 50, 70]],
+            'CUBE': [[158, 255, 255], [110, 100, 100]],
             # "CONE": [[25, 255, 255], [22, 50, 70]]
             "CONE": [[cone["MEAN"][0]+cone["STDEV"][0]*2, cone["MEAN"][1]+cone["STDEV"][1]*2, cone["MEAN"][2]+cone["STDEV"][2]*2], 
             [cone["MEAN"][0]-cone["STDEV"][0]*3, cone["MEAN"][1]-cone["STDEV"][1]*3, cone["MEAN"][2]-cone["STDEV"][2]*50]]
@@ -56,10 +56,14 @@ class Detector:
                         tx,ty,tw,th = cv2.boundingRect(contour)
                         #print(tx, ty, tw, th)
                         if (tw * th > w * h and not (tx == 0 and ty == 0 and tw == frame.shape[1] and th == frame.shape[0])):
-                            x = tx
-                            y = ty
-                            w = tw
-                            h = th
+                            passed = False
+                            if (tw * th > 200):
+                                passed = True
+                            if passed:
+                                x = tx
+                                y = ty
+                                w = tw
+                                h = th
 
                 if (object in objectsToDetect): results[object] = [x, y, w, h]
 
@@ -84,10 +88,14 @@ class Detector:
                         tx,ty,tw,th = cv2.boundingRect(contour)
                         #print(tx, ty, tw, th)
                         if (tw * th > w * h and not (tx == 0 and ty == 0 and tw == frame.shape[1] and th == frame.shape[0])):
-                            x = tx
-                            y = ty
-                            w = tw
-                            h = th
+                            passed = False
+                            if (tw * th > 200):
+                                passed = True
+                            if passed:
+                                x = tx
+                                y = ty
+                                w = tw
+                                h = th
                             temp_ctr_max = contour
 
                 epsilon = eps * cv2.arcLength(temp_ctr_max, True)
