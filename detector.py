@@ -40,109 +40,96 @@ class Detector:
         for object in objectsToDetect:
             hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(hsv_frame, np.array(colors[object][1]), np.array(colors[object][0]))
-
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
             morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-
-
+            mask = cv2.medianBlur(mask, 5)
             if (object == "CUBE"):
                 contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
-                x = 0
-                y = 0
-                w = 0
-                h = 0
+                contours = sorted(contours, key=cv2.contourArea)
+                cnt = None
                 for contour in contours:  
                         tx,ty,tw,th = cv2.boundingRect(contour)
                         #print(tx, ty, tw, th)
-                        if (tw * th > w * h and not (tx == 0 and ty == 0 and tw == frame.shape[1] and th == frame.shape[0])):
+                        if (not (tx == 0 and ty == 0 and tw == frame.shape[1] and th == frame.shape[0])):
                             passed = False
                             if (tw * th > 200):
                                 passed = True
                             if passed:
-                                x = tx
-                                y = ty
-                                w = tw
-                                h = th
+                                cnt = contour
 
-                if (object in objectsToDetect): results[object] = [x, y, w, h]
-
-                #print("X: %2d, Y: %2d, W: %2d, H: %2d" % (x, y, w, h))
-
-                #annotate contour
-                cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 0, 255), 2)
-                cv2.circle(frame, (int(x + w/2), int(y + h/2)), radius = 0, color = (0, 0, 255), thickness=5)
-                cv2.putText(frame, object, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2, cv2.LINE_AA)
-                results[object] = Target([x, y, w, h], object)
+                if cnt is not None:
+                    #annotate contour
+                    x,y,w,h = cv2.boundingRect(cnt)
+                    cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 0, 255), 2)
+                    cv2.circle(frame, (int(x + w/2), int(y + h/2)), radius = 0, color = (0, 0, 255), thickness=5)
+                    cv2.putText(frame, object, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2, cv2.LINE_AA)
+                    results[object] = Target(cnt, object)
 
             if (object == "CONE"):
                 straight_contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-
+                straight_contours = sorted(straight_contours, key=cv2.contourArea)
                 temp_ctr_max = None
-                x = 0
-                y = 0
-                w = 0
-                h = 0
 
                 for contour in straight_contours:
                         tx,ty,tw,th = cv2.boundingRect(contour)
                         #print(tx, ty, tw, th)
-                        if (tw * th > w * h and not (tx == 0 and ty == 0 and tw == frame.shape[1] and th == frame.shape[0])):
+                        if (not (tx == 0 and ty == 0 and tw == frame.shape[1] and th == frame.shape[0])):
                             passed = False
                             if (tw * th > 200):
                                 passed = True
                             if passed:
-                                x = tx
-                                y = ty
-                                w = tw
-                                h = th
-                            temp_ctr_max = contour
+                                temp_ctr_max = contour
 
-                epsilon = eps * cv2.arcLength(temp_ctr_max, True)
-                approx = cv2.approxPolyDP(temp_ctr_max, epsilon, True)
-                
-                i = 0
+                if temp_ctr_max is not None:
+                    epsilon = eps * cv2.arcLength(temp_ctr_max, True)
+                    approx = cv2.approxPolyDP(temp_ctr_max, epsilon, True)
+                    
+                    i = 0
 
-                tl = None
-                tr = None
-                bl = None
-                br = None
+                    tl = None
+                    tr = None
+                    bl = None
+                    br = None
 
-                for vertex in approx:
-                    cv2.circle(frame, vertex[0], 2, (0, 0, 255), 5)
+                    for vertex in approx:
+                        cv2.circle(frame, vertex[0], 2, (0, 0, 255), 5)
 
-                    x, y = vertex[0]
+                        x, y = vertex[0]
 
-                    if (tl == None or (x < tl[0] and y < tl[1])):
-                        tl = (x, y)
-                    elif (tr == None or (x > tr[0] and y < tr[1])):
-                        tr = (x, y)
-                    elif (bl == None or (x < bl[0] and y > bl[1])):
-                        bl = (x, y)
-                    elif (br == None or (x > br[0] and y > br[1])):
-                        br = (x, y)
+                        if (tl == None or (x < tl[0] and y < tl[1])):
+                            tl = (x, y)
+                        elif (tr == None or (x > tr[0] and y < tr[1])):
+                            tr = (x, y)
+                        elif (bl == None or (x < bl[0] and y > bl[1])):
+                            bl = (x, y)
+                        elif (br == None or (x > br[0] and y > br[1])):
+                            br = (x, y)
 
-                cv2.drawContours(frame, [approx], -1, (0, 0, 255), 2)
+                    cv2.drawContours(frame, [approx], -1, (0, 0, 255), 2)
 
-                cv2.circle(frame, tl, 2, (0, 255, 0), 5)
-                cv2.circle(frame, tr, 2, (0, 255, 0), 5)
-                cv2.circle(frame, bl, 2, (0, 255, 0), 5)
-                cv2.circle(frame, br, 2, (0, 255, 0), 5)
+                    cv2.circle(frame, tl, 2, (0, 255, 0), 5)
+                    cv2.circle(frame, tr, 2, (0, 255, 0), 5)
+                    cv2.circle(frame, bl, 2, (0, 255, 0), 5)
+                    cv2.circle(frame, br, 2, (0, 255, 0), 5)
 
 
-                #https://docs.revrobotics.com/frc-kickoff-concepts/charged-up-2023/game-elements - dimension uncertainty factored in 
-                #NEED TO CHECK IF VERTEX POINTS TL and TR and BL and BR are collinear (this is easy, i am lazy, someone else do it)
+                    #https://docs.revrobotics.com/frc-kickoff-concepts/charged-up-2023/game-elements - dimension uncertainty factored in 
+                    #NEED TO CHECK IF VERTEX POINTS TL and TR and BL and BR are collinear (this is easy, i am lazy, someone else do it)
 
-                if ((tl[1] - tr[1])/(bl[1] - br[1]) < (45/213) and (tl[1] - tr[1])/(bl[1] - br[1]) < (26/213) and tl[0] > bl[0] and tr[0] < br[0]):
-                    results[object] = Target([tl, tr, bl, br], object)
+                    if ((tl[1] - tr[1])/(bl[1] - br[1]) < (45/213) and (tl[1] - tr[1])/(bl[1] - br[1]) < (26/213) and tl[0] > bl[0] and tr[0] < br[0]):
+                        results[object] = Target(temp_ctr_max, object)
 
-
-            while True:
-                cv2.imshow("o", frame)
-                if cv2.waitKey(0):
-                    break
+        for result in results.values():
+            if result is None: continue
+            print(result.getType())
+            print(result.get_yaw_degrees())
+            print(result.get_pitch_degrees())
+        while True:
+            cv2.imshow("o", frame)
+            if cv2.waitKey(0):
+                break
             
-            cv2.destroyAllWindows()
+        cv2.destroyAllWindows()
 
         return results
 
