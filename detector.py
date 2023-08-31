@@ -116,8 +116,8 @@ class Detector:
                     #https://docs.revrobotics.com/frc-kickoff-concepts/charged-up-2023/game-elements - dimension uncertainty factored in 
                     #NEED TO CHECK IF VERTEX POINTS TL and TR and BL and BR are collinear (this is easy, i am lazy, someone else do it)
 
-                    if ((tl[1] - tr[1])/(bl[1] - br[1]) < (45/213) and (tl[1] - tr[1])/(bl[1] - br[1]) < (26/213) and tl[0] > bl[0] and tr[0] < br[0]):
-                        results[object] = Target(temp_ctr_max, object)
+                    #if ((tl[1] - tr[1])/(bl[1] - br[1]) < (45/213) and (tl[1] - tr[1])/(bl[1] - br[1]) < (26/213) and tl[0] > bl[0] and tr[0] < br[0]):
+                    results[object] = Target(temp_ctr_max, object)
 
         for result in results.values():
             if result is None: continue
