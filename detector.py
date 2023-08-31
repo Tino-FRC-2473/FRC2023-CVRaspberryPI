@@ -20,10 +20,21 @@ class Detector:
 
 
         #CUBE AND CONE DETECTION
+        cone = {
+            "MEAN": [25.98, 241.47, 254.63],
+            "STDEV": [2.64, 26.68, 1.72]
+        }
 
         colors = {
+#                 mean:  [0.14516343 0.94692874 0.99853644]
+                # mean: [25.98, 241.47, 254.63]
+#              standard deviation h: 0.014804869677712107, 2.64
+#               tandard deviation s: 0.10461448099913015, 26.68
+#               standard deviation v: 0.006726860745578783, 1.72
             "CUBE": [[158, 255, 255], [90, 50, 70]],
-            "CONE": [[25, 255, 255], [22, 50, 70]]
+            # "CONE": [[25, 255, 255], [22, 50, 70]]
+            "CONE": [[cone["MEAN"][0]+cone["STDEV"][0]*2, cone["MEAN"][1]+cone["STDEV"][1]*2, cone["MEAN"][2]+cone["STDEV"][2]*2], 
+            [cone["MEAN"][0]-cone["STDEV"][0]*3, cone["MEAN"][1]-cone["STDEV"][1]*3, cone["MEAN"][2]-cone["STDEV"][2]*3]]
         }
         
         for object in objectsToDetect:
