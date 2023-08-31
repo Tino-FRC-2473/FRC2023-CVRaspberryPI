@@ -34,7 +34,7 @@ class Detector:
             "CUBE": [[158, 255, 255], [90, 50, 70]],
             # "CONE": [[25, 255, 255], [22, 50, 70]]
             "CONE": [[cone["MEAN"][0]+cone["STDEV"][0]*2, cone["MEAN"][1]+cone["STDEV"][1]*2, cone["MEAN"][2]+cone["STDEV"][2]*2], 
-            [cone["MEAN"][0]-cone["STDEV"][0]*3, cone["MEAN"][1]-cone["STDEV"][1]*3, cone["MEAN"][2]-cone["STDEV"][2]*3]]
+            [cone["MEAN"][0]-cone["STDEV"][0]*3, cone["MEAN"][1]-cone["STDEV"][1]*3, cone["MEAN"][2]-cone["STDEV"][2]*50]]
         }
         
         for object in objectsToDetect:
