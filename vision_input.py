@@ -18,7 +18,6 @@ class VisionInput:
         pass
 
     def getFrame(self):
-        return cv2.imread('test.png')
         ret, frame = self.cap.read()
         
         if not ret: print('frame malf'); exit
