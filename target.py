@@ -4,9 +4,12 @@ import math
 class Target:
     FOV = -1
     RES = -1
+    CAM_HEIGHT = -1
+    CAM_ANGLE = -1
     def __init__(self, contour, target_type):
         self.contour = contour
         self.target_type = target_type
+        self.heights = {"CUBE":0.2,"CONE":0.3} #meters
 
 
     def __str__(self):
@@ -38,3 +41,7 @@ class Target:
         A = center_cam
         theta = math.atan(B * math.tan(math.radians(Target.FOV[1] / 2)) / A)
         return math.degrees(theta)
+    
+    def get_distance_meters(self):
+        height = self.heights[self.getType()]
+        return (height - Target.CAM_HEIGHT) / math.tan(math.radians(Target.CAM_ANGLE + self.get_pitch_degrees()))

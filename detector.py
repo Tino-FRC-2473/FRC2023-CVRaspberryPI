@@ -16,7 +16,7 @@ class Detector:
         frame = cv2.resize(array, (500, int(500*array.shape[0]/array.shape[1])))
         results = dict(zip(objectsToDetect, [None for i in range(len(objectsToDetect))]))
 
-        print(results)
+        #print(results)
 
 
         #CUBE AND CONE DETECTION
@@ -84,7 +84,6 @@ class Detector:
                     epsilon = eps * cv2.arcLength(temp_ctr_max, True)
                     approx = cv2.approxPolyDP(temp_ctr_max, epsilon, True)
                     
-                    i = 0
 
                     tl = None
                     tr = None
@@ -119,11 +118,6 @@ class Detector:
                     #if ((tl[1] - tr[1])/(bl[1] - br[1]) < (45/213) and (tl[1] - tr[1])/(bl[1] - br[1]) < (26/213) and tl[0] > bl[0] and tr[0] < br[0]):
                     results[object] = Target(temp_ctr_max, object)
 
-        for result in results.values():
-            if result is None: continue
-            print(result.getType())
-            print(result.get_yaw_degrees())
-            print(result.get_pitch_degrees())
         while True:
             cv2.imshow("o", frame)
             if cv2.waitKey(0):
