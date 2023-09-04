@@ -2,14 +2,14 @@ import cv2
 import math
 
 class Target:
-    FOV = -1
-    RES = -1
-    CAM_HEIGHT = -1
-    CAM_ANGLE = -1
+    FOV = (50.28, 29.16)
+    RES = (1280, 720)
+    CAM_HEIGHT = 0.15
+    CAM_ANGLE = 0
     def __init__(self, contour, target_type):
         self.contour = contour
         self.target_type = target_type
-        self.heights = {"CUBE":0.2,"CONE":0.3} #meters
+        self.heights = {"CUBE":0.24/2,"CONE":0.33/2} #meters
 
 
     def __str__(self):
@@ -27,6 +27,7 @@ class Target:
     def get_yaw_degrees(self):
         x,y,w,h = self.getBoundingRect()
         center_tag = x + (w/2)
+        print(x)
         center_cam = Target.RES[0]/2
         B = center_tag - center_cam
         A = center_cam

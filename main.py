@@ -7,7 +7,7 @@ from vision_input import VisionInput
 import time
 
 NetworkTables.initialize(server='10.24.73.6')
-FOV = (55, 45)
+FOV = (50.28, 29.16)
 RES = (1280, 720)
 CAM_HEIGHT = 0.4
 CAM_ANGLE = -15
@@ -28,5 +28,7 @@ while True:
             elif target.getType() == "CUBE":
                 datatable.putNumber('cube_yaw', yaw)
                 datatable.putNumber('cube_distance', distance)
-    time.sleep(0.05)
 
+            print("yaw: ", yaw)
+            print("distance: ", target.get_distance_meters())
+    time.sleep(0.05)

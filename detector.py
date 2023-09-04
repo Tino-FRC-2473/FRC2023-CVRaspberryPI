@@ -13,7 +13,8 @@ class Detector:
         
         eps = 0.015
 
-        frame = cv2.resize(array, (500, int(500*array.shape[0]/array.shape[1])))
+        # frame = cv2.resize(array, (500, int(500*array.shape[0]/array.shape[1])))
+        frame = array
         results = dict(zip(objectsToDetect, [None for i in range(len(objectsToDetect))]))
 
         #print(results)
@@ -68,7 +69,8 @@ class Detector:
             if (object == "CONE"):
                 straight_contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
                 straight_contours = sorted(straight_contours, key=cv2.contourArea)
-                temp_ctr_max = None
+                # temp_ctr_max = None
+                cnt = None
 
                 for contour in straight_contours:
                         tx,ty,tw,th = cv2.boundingRect(contour)
@@ -78,38 +80,50 @@ class Detector:
                             if (tw * th > 200):
                                 passed = True
                             if passed:
+                                cnt = contour
                                 temp_ctr_max = contour
 
-                if temp_ctr_max is not None:
-                    epsilon = eps * cv2.arcLength(temp_ctr_max, True)
-                    approx = cv2.approxPolyDP(temp_ctr_max, epsilon, True)
+                if cnt is not None:
+                    #annotate contour
+                    x,y,w,h = cv2.boundingRect(cnt)
+                    cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 0, 255), 2)
+                    cv2.circle(frame, (int(x + w/2), int(y + h/2)), radius = 0, color = (0, 0, 255), thickness=5)
+                    cv2.putText(frame, object, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2, cv2.LINE_AA)
+                    results[object] = Target(cnt, object)
+
+                # if temp_ctr_max is not None:
+
+
+
+                    # epsilon = eps * cv2.arcLength(temp_ctr_max, True)
+                    # approx = cv2.approxPolyDP(temp_ctr_max, epsilon, True)
                     
 
-                    tl = None
-                    tr = None
-                    bl = None
-                    br = None
+                    # tl = None
+                    # tr = None
+                    # bl = None
+                    # br = None
 
-                    for vertex in approx:
-                        cv2.circle(frame, vertex[0], 2, (0, 0, 255), 5)
+                    # for vertex in approx:
+                    #     cv2.circle(frame, vertex[0], 2, (0, 0, 255), 5)
 
-                        x, y = vertex[0]
+                    #     x, y = vertex[0]
 
-                        if (tl == None or (x < tl[0] and y < tl[1])):
-                            tl = (x, y)
-                        elif (tr == None or (x > tr[0] and y < tr[1])):
-                            tr = (x, y)
-                        elif (bl == None or (x < bl[0] and y > bl[1])):
-                            bl = (x, y)
-                        elif (br == None or (x > br[0] and y > br[1])):
-                            br = (x, y)
+                    #     if (tl == None or (x < tl[0] and y < tl[1])):
+                    #         tl = (x, y)
+                    #     elif (tr == None or (x > tr[0] and y < tr[1])):
+                    #         tr = (x, y)
+                    #     elif (bl == None or (x < bl[0] and y > bl[1])):
+                    #         bl = (x, y)
+                    #     elif (br == None or (x > br[0] and y > br[1])):
+                    #         br = (x, y)
 
-                    cv2.drawContours(frame, [approx], -1, (0, 0, 255), 2)
+                    # cv2.drawContours(frame, [approx], -1, (0, 0, 255), 2)
 
-                    cv2.circle(frame, tl, 2, (0, 255, 0), 5)
-                    cv2.circle(frame, tr, 2, (0, 255, 0), 5)
-                    cv2.circle(frame, bl, 2, (0, 255, 0), 5)
-                    cv2.circle(frame, br, 2, (0, 255, 0), 5)
+                    # cv2.circle(frame, tl, 2, (0, 255, 0), 5)
+                    # cv2.circle(frame, tr, 2, (0, 255, 0), 5)
+                    # cv2.circle(frame, bl, 2, (0, 255, 0), 5)
+                    # cv2.circle(frame, br, 2, (0, 255, 0), 5)
 
 
                     #https://docs.revrobotics.com/frc-kickoff-concepts/charged-up-2023/game-elements - dimension uncertainty factored in 
@@ -141,7 +155,8 @@ class Detector:
         
         #================================================================================
 
-        frame = cv2.resize(array, (500, int(500*array.shape[0]/array.shape[1])))
+        # frame = cv2.resize(array, (500, int(500*array.shape[0]/array.shape[1])))
+        frame = array
         results = dict(zip(rgb_col, [None for i in range(len(rgb_col))]))
 
         print(rgb_col)
