@@ -26,7 +26,7 @@ if __name__ == "__main__":
         xSub = table.getDoubleTopic("x").subscribe(0)
 
         
-        xPub.set('x', num)
+        xPub.set(num)
         x = xSub.get()
         print(x)
         #datatable = NetworkTables.getTable('datatable')
