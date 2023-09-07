@@ -1,28 +1,43 @@
 import time
-from networktables import NetworkTables
-from visionInput import VisionInput
-from detector import Detector
+#from networktables import NetworkTables
+import ntcore
+from visionInput import VisionInputS
 
 #table = NetworkTablesInstance(server='10.24.73.6')
-NetworkTables.initialize(server='10.24.73.6')
+inst = ntcore.NetworkTableInstance.getDefault()
+inst.startClient4("python")
+inst.setServerTeam(2473)
+#inst.startDSClient()
+
+#NetworkTables.initialize(server='10.24.73.6')
 #datatable = NetworkTables.getTable('datatable')
 #datatable = NetworkTables.getTable('SmartDashboard')
-input = VisionInput(70, 1920, 1080)
-detector = Detector()
+#input = VisionInput(70, 1920, 1080)
+#detector = Detector()
 
 num = 1
 
 if __name__ == "__main__":
 
     while True:
-        img = input.get_frame_gray()
-        datatable = NetworkTables.getTable('datatable')
-        result = detector.detectAprilTag(img)
-        print(img.sum())
-        datatable.putNumber('x', img.sum())
+        #img = input.get_frame_gray()
+        table = inst.getTable("datatable")
+        xPub = table.getDoubleTopic("x").publish()
+        xSub = table.getDoubleTopic("x").subscribe(0)
 
-        x = datatable.getNumber('x', -1)
+        
+        xPub.set('x', num)
+        x = xSub.get()
         print(x)
+        #datatable = NetworkTables.getTable('datatable')
+
+
+        #result = detector.detectAprilTag(img)
+        # print(img.sum())
+        # datatable.putNumber('x', img.sum())
+
+        # x = datatable.getNumber('x', -1)
+        # print(x)
         num = num + 1
 
         time.sleep(0.05)
