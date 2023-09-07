@@ -67,7 +67,7 @@ class Detector:
                     results[object] = Target(cnt, object)
 
             if (object == "CONE"):
-                straight_contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[:2]
+                image, straight_contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[:2]
                 straight_contours = sorted(straight_contours, key=cv2.contourArea)
                 # temp_ctr_max = None
                 cnt = None
