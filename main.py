@@ -17,8 +17,9 @@ while True:
     datatable = NetworkTables.getTable('datatable')
     frame = input.getFrame()
     results = d.detectGameElement(np.asarray(frame), ["CUBE", "CONE"])
-    datatable.putNumber('x', frame.sum())
-    for type, target in results.items():
+    datatable.putNumber('fps_incremented_value', frame.sum())
+
+    for type, target in results.items(): 
         if target is not None:
             yaw = target.get_yaw_degrees()
             distance = target.get_distance_meters()

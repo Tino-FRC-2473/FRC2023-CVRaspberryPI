@@ -1,3 +1,4 @@
+import math
 CAM_HEIGHT = 0 #default
 CUBE_TO_CAM = math.abs(CAM_HEIGHT - 0.24/2) #default
 CONE_TO_CAM = math.abs(CAM_HEIGHT - 0.33/2) #default
