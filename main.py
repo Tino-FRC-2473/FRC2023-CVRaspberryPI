@@ -19,15 +19,24 @@ CAM_HEIGHT = 0.4
 CAM_ANGLE = -15
 d = Detector()
 input = VisionInput(FOV, RES, CAM_HEIGHT, CAM_ANGLE)
+curr = time.time()
 while True:
+    
     frame = input.getFrame()
+    print("get frame: ", time.time() - curr)
+    curr = time.time()
+
     table = inst.getTable("datatable")
-    xPub = table.getDoubleTopic("fps_incremented_value").publish()
-    xPub.set(frame.sum())
+    # xPub = table.getDoubleTopic("fps_incremented_value").publish()
+    # xPub.set(frame.sum())
+
     coneY = table.getDoubleTopic("cone_yaw").publish()
     coneD = table.getDoubleTopic("cone_distance").publish()
     cubeY = table.getDoubleTopic("cube_yaw").publish()
     cubeD = table.getDoubleTopic("cube_distance").publish()
+
+    print("get topics: ", time.time() - curr)
+    curr = time.time()
 
     results = d.detectGameElement(np.asarray(frame), ["CUBE", "CONE"])
 
@@ -35,6 +44,10 @@ while True:
         if target is not None:
             yaw = target.get_yaw_degrees()
             distance = target.get_distance_meters()
+
+            print("get target yaw + distance: ", time.time() - curr)
+            curr = time.time()
+
             if target.getType() == "CONE":
                 coneY.set(yaw)
                 coneD.set(distance)
@@ -45,6 +58,10 @@ while True:
                 cubeD.set(distance)
                 # datatable.putNumber('cube_yaw', yaw)
                 # datatable.putNumber('cube_distance', distance)
-            print("yaw: ", yaw)
-            print("distance: ", target.get_distance_meters())
+
+            print("send values: ", time.time() - curr)
+            curr = time.time()
+           
+            # print("yaw: ", yaw)
+            # print("distance: ", target.get_distance_meters())
     time.sleep(0.05)
