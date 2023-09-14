@@ -1,7 +1,6 @@
 import cv2
 import math
 import numpy as np
-#import matplotlib.pyplot as plt
 from target import Target
 
 class Detector:
@@ -10,10 +9,6 @@ class Detector:
         pass
     
     def detectGameElement(self, array, objectsToDetect: list):
-        
-        eps = 0.015
-
-        # frame = cv2.resize(array, (500, int(500*array.shape[0]/array.shape[1])))
         frame = array
         results = dict(zip(objectsToDetect, [None for i in range(len(objectsToDetect))]))
 
@@ -45,7 +40,7 @@ class Detector:
             morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
             mask = cv2.medianBlur(mask, 5)
             if (object == "CUBE"):
-                image, contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+                contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
                 contours = sorted(contours, key=cv2.contourArea)
                 cnt = None
                 for contour in contours:  
@@ -60,14 +55,14 @@ class Detector:
 
                 if cnt is not None:
                     #annotate contour
-                    # x,y,w,h = cv2.boundingRect(cnt)
-                    # cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 0, 255), 2)
-                    # cv2.circle(frame, (int(x + w/2), int(y + h/2)), radius = 0, color = (0, 0, 255), thickness=5)
-                    # cv2.putText(frame, object, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2, cv2.LINE_AA)
+                    x,y,w,h = cv2.boundingRect(cnt)
+                    cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 0, 255), 2)
+                    cv2.circle(frame, (int(x + w/2), int(y + h/2)), radius = 0, color = (0, 0, 255), thickness=5)
+                    cv2.putText(frame, object, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2, cv2.LINE_AA)
                     results[object] = Target(cnt, object)
 
             if (object == "CONE"):
-                image, straight_contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[:2]
+                straight_contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[:2]
                 straight_contours = sorted(straight_contours, key=cv2.contourArea)
                 # temp_ctr_max = None
                 cnt = None
@@ -85,10 +80,10 @@ class Detector:
 
                 if cnt is not None:
                     #annotate contour
-                    # x,y,w,h = cv2.boundingRect(cnt)
-                    # cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 0, 255), 2)
-                    # cv2.circle(frame, (int(x + w/2), int(y + h/2)), radius = 0, color = (0, 0, 255), thickness=5)
-                    # cv2.putText(frame, object, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2, cv2.LINE_AA)
+                    x,y,w,h = cv2.boundingRect(cnt)
+                    cv2.rectangle(frame, (x,y), (x + w, y + h), (0, 0, 255), 2)
+                    cv2.circle(frame, (int(x + w/2), int(y + h/2)), radius = 0, color = (0, 0, 255), thickness=5)
+                    cv2.putText(frame, object, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2, cv2.LINE_AA)
                     results[object] = Target(cnt, object)
 
                 # if temp_ctr_max is not None:
@@ -132,10 +127,10 @@ class Detector:
                     #if ((tl[1] - tr[1])/(bl[1] - br[1]) < (45/213) and (tl[1] - tr[1])/(bl[1] - br[1]) < (26/213) and tl[0] > bl[0] and tr[0] < br[0]):
                     results[object] = Target(temp_ctr_max, object)
 
-        # while True:
-        #     cv2.imshow("o", frame)
-        #     if cv2.waitKey(0):
-        #         break
+        while True:
+            cv2.imshow("o", frame)
+            if cv2.waitKey(0):
+                break
             
         cv2.destroyAllWindows()
 
