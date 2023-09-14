@@ -21,59 +21,62 @@ class Detector:
         colors = {
             'CUBE': [[158, 255, 255], [110, 100, 100]],
             "CONE": [[cone["MEAN"][0]+cone["STDEV"][0]*2,
-            cone["MEAN"][1]+cone["STDEV"][1]*2,
-            cone["MEAN"][2]+cone["STDEV"][2]*2],
-            [cone["MEAN"][0]-cone["STDEV"][0]*3,
-            cone["MEAN"][1]-cone["STDEV"][1]*3,
-            cone["MEAN"][2]-cone["STDEV"][2]*50]]
-            
+                      cone["MEAN"][1]+cone["STDEV"][1]*2,
+                      cone["MEAN"][2]+cone["STDEV"][2]*2],
+                     [cone["MEAN"][0]-cone["STDEV"][0]*3,
+                      cone["MEAN"][1]-cone["STDEV"][1]*3,
+                      cone["MEAN"][2]-cone["STDEV"][2]*50]]
+
         }
         for object in objectsToDetect:
             hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(hsv_frame,
-            np.array(colors[object][1]), np.array(colors[object][0]))
+                               np.array(colors[object][1]),
+                               np.array(colors[object][0]))
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
             morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
             mask = cv2.medianBlur(mask, 5)
             if (object == "CUBE"):
                 contours, hier = cv2.findContours(morph,
-                cv2.RETR_EXTERNAL,
-                cv2.CHAIN_APPROX_NONE)
+                                                  cv2.RETR_EXTERNAL,
+                                                  cv2.CHAIN_APPROX_NONE)
                 contours = sorted(contours, key=cv2.contourArea)
                 cnt = None
                 for contour in contours:
                     tx, ty, tw, th = cv2.boundingRect(contour)
                     if (not (tx == 0 and ty == 0 and
-                    tw == frame.shape[1] and
-                    th == frame.shape[0])):
+                             tw == frame.shape[1] and
+                             th == frame.shape[0])):
                         passed = False
-                        if (tw * th > 200):
-                            passed = True
-                        if passed:
-                            cnt = contour
+                    if (tw * th > 200):
+                        passed = True
+                    if passed:
+                        cnt = contour
 
                 if cnt is not None:
                     x, y, w, h = cv2.boundingRect(cnt)
                     cv2.rectangle(frame, (x, y), (x + w, y + h),
-                    (0, 0, 255), 2)
+                                         (0, 0, 255), 2)
                     cv2.circle(frame, (int(x + w / 2), int(y + h / 2)),
-                    radius = 0, color = (0, 0, 255), thickness = 5)
+                               radius=0, color=(0, 0, 255), thickness=5)
                     cv2.putText(frame, object, (x, y - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255),
-                    2, cv2.LINE_AA)
+                                cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255),
+                                2, cv2.LINE_AA)
                     results[object] = Target(cnt, object)
 
             if (object == "CONE"):
-                straight_contours, hier = cv2.findContours(morph,
-                cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[:2]
+                straight_contours,
+                hier = cv2.findContours(morph,
+                                        cv2.RETR_EXTERNAL,
+                                        cv2.CHAIN_APPROX_NONE)[:2]
                 straight_contours = sorted(straight_contours,
-                key=cv2.contourArea)
+                                           key=cv2.contourArea)
                 cnt = None
 
                 for contour in straight_contours:
                     tx, ty, tw, th = cv2.boundingRect(contour)
                     if (not (tx == 0 and ty == 0 and
-                        tw == frame.shape[1] and th == frame.shape[0])):
+                             tw == frame.shape[1] and th == frame.shape[0])):
                         passed = False
                     if (tw * th > 200):
                         passed = True
@@ -84,13 +87,13 @@ class Detector:
                 if cnt is not None:
                     x, y, w, h = cv2.boundingRect(cnt)
                     cv2.rectangle(frame, (x, y),
-                    (x + w, y + h), (0, 0, 255), 2)
+                                         (x + w, y + h), (0, 0, 255), 2)
                     cv2.circle(frame, (int(x + w/2),
-                    int(y + h/2)), radius = 0,
-                    color = (0, 0, 255), thickness=5)
+                                       int(y + h/2)), radius=0,
+                               color=(0, 0, 255), thickness=5)
                     cv2.putText(frame, object, (x, y - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1.0, (0, 0, 255), 2, cv2.LINE_AA)
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                1.0, (0, 0, 255), 2, cv2.LINE_AA)
                     results[object] = Target(cnt, object)
                     results[object] = Target(temp_ctr_max, object)
 
@@ -105,15 +108,15 @@ class Detector:
 
     def detectColoredShape(self, array, rgb_col):
         color_dict_HSV = {'black': [[180, 255, 30], [0, 0, 0]],
-            'white': [[180, 18, 255], [0, 0, 231]],
-            'red1': [[180, 255, 255], [159, 50, 70]],
-            'red2': [[9, 255, 255], [0, 50, 70]],
-            'green': [[89, 255, 255], [36, 50, 70]],
-            'blue': [[128, 255, 255], [90, 50, 70]],
-            'yellow': [[35, 255, 255], [25, 50, 70]],
-            'purple': [[158, 255, 255], [129, 50, 70]],
-            'orange': [[24, 255, 255], [10, 50, 70]],
-            'gray': [[180, 18, 230], [0, 0, 40]]}
+                          'white': [[180, 18, 255], [0, 0, 231]],
+                          'red1': [[180, 255, 255], [159, 50, 70]],
+                          'red2': [[9, 255, 255], [0, 50, 70]],
+                          'green': [[89, 255, 255], [36, 50, 70]],
+                          'blue': [[128, 255, 255], [90, 50, 70]],
+                          'yellow': [[35, 255, 255], [25, 50, 70]],
+                          'purple': [[158, 255, 255], [129, 50, 70]],
+                          'orange': [[24, 255, 255], [10, 50, 70]],
+                          'gray': [[180, 18, 230], [0, 0, 40]]}
         frame = array
         results = dict(zip(rgb_col, [None for i in range(len(rgb_col))]))
 
@@ -122,12 +125,13 @@ class Detector:
         for object in rgb_col:
             hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(hsv_frame,
-            np.array(color_dict_HSV[object][1]),
-            np.array(color_dict_HSV[object][0]))
+                               np.array(color_dict_HSV[object][1]),
+                               np.array(color_dict_HSV[object][0]))
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
             morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
             contours, hier = cv2.findContours(morph,
-            cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[:2]
+                                              cv2.RETR_EXTERNAL,
+                                              cv2.CHAIN_APPROX_NONE)[:2]
             x = 0
             y = 0
             w = 0
@@ -136,8 +140,8 @@ class Detector:
                 tx, ty, tw, th = cv2.boundingRect(contour)
                 print(tx, ty, tw, th)
                 if (tw * th > w * h and not
-                (tx == 0 and ty == 0 and
-                tw == frame.shape[1] and th == frame.shape[0])):
+                   (tx == 0 and ty == 0 and
+                        tw == frame.shape[1] and th == frame.shape[0])):
                     x = tx
                     y = ty
                     w = tw
