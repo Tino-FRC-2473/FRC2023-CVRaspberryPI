@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import math
 from target import Target
-#DUMMY VISION INPUT (does not include fov and res calib)
+
 
 class VisionInput:
     def __init__(self, fov, res: tuple, height, angle):
@@ -19,11 +19,13 @@ class VisionInput:
 
     def getFrame(self):
         ret, frame = self.cap.read()
-        
-        if not ret: print('frame malf'); exit
-        
+
+        if not ret:
+            print('frame malf')
+        exit
+
         fr = cv2.resize(frame, (self.w, self.h), interpolation=cv2.INTER_AREA)
         return fr
-    
+
     def getGrayFrame(self):
         return cv2.cvtColor(self.getFrame(self), cv2.COLOR_BGR2GRAY)
