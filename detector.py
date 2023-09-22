@@ -42,16 +42,19 @@ class Detector:
                                                   cv2.CHAIN_APPROX_NONE)
                 contours = sorted(contours, key=cv2.contourArea)
                 cnt = None
-                for contour in contours:
-                    tx, ty, tw, th = cv2.boundingRect(contour)
-                    if (not (tx == 0 and ty == 0 and
-                             tw == frame.shape[1] and
-                             th == frame.shape[0])):
-                        passed = False
-                    if (tw * th > 200):
-                        passed = True
-                    if passed:
-                        cnt = contour
+                # contour = contours[len(contours) -1]
+                for contour in contours:  
+                    print("Area", cv2.contourArea(contour))
+                    if(cv2.contourArea(contour)>1000):
+                        print("Added Area", cv2.contourArea(contour))
+                        tx,ty,tw,th = cv2.boundingRect(contour)
+                        #print(tx, ty, tw, th)
+                        if (not (tx == 0 and ty == 0 and tw == frame.shape[1] and th == frame.shape[0])):
+                            passed = False
+                            if (tw * th > 200):
+                                passed = True
+                            if passed:
+                                cnt = contour
 
                 if cnt is not None:
                     x, y, w, h = cv2.boundingRect(cnt)
@@ -74,15 +77,16 @@ class Detector:
                 cnt = None
 
                 for contour in straight_contours:
-                    tx, ty, tw, th = cv2.boundingRect(contour)
-                    if (not (tx == 0 and ty == 0 and
-                             tw == frame.shape[1] and th == frame.shape[0])):
-                        passed = False
-                    if (tw * th > 200):
-                        passed = True
-                    if passed:
-                        cnt = contour
-                        temp_ctr_max = contour
+                    if(cv2.contourArea(contour)>1000):
+                        tx,ty,tw,th = cv2.boundingRect(contour)
+                        #print(tx, ty, tw, th)
+                        if (not (tx == 0 and ty == 0 and tw == frame.shape[1] and th == frame.shape[0])):
+                            passed = False
+                            if (tw * th > 200):
+                                passed = True
+                            if passed:
+                                cnt = contour
+                                temp_ctr_max = contour
 
                 if cnt is not None:
                     x, y, w, h = cv2.boundingRect(cnt)
