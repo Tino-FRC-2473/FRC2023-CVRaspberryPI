@@ -6,6 +6,8 @@ class callibration:
 
     def __init__(self):
         self.images = []
+        self.objpoints = []  # 3d point in real world space
+        self.imgpoints = []  # 2d points in image plane.
 
     def load_images(directory):
         img_dir = directory# Enter Directory of all images  
@@ -26,8 +28,7 @@ class callibration:
         objp[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
         # prepares object points defined in a 3D space (Z coordinates set to 0)
         objp = objp * square_size
-        objpoints = []  # 3d point in real world space
-        imgpoints = []  # 2d points in image plane.
+        
         # arrays from object points and image points from all images
 
         cap = cv2.VideoCapture(0)
@@ -49,11 +50,11 @@ class callibration:
 
         # When everything done, release the capture
         cap.release()
-        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, gray.shape[::-1], None, None)
         return mtx, dist
     
     def undistortImage(image):
-        ret, cameraMatrix, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, frameSize, None, None)
+        ret, cameraMatrix, dist, rvecs, tvecs = cv.calibrateCamera(self.objpoints, self.imgpoints, frameSize, None, None)
 
         ############## UNDISTORTION #####################################################
 
