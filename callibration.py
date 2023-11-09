@@ -1,9 +1,22 @@
-
+import cv2 
+import os 
+import glob 
 #fix the distoriton parameters of the camera 
 class callibration:
 
-    def calibrate_camera(chessboard_images, square_size, width, height):
+    def __init__(self):
+        self.images = []
 
+    def load_images(directory):
+        img_dir = directory# Enter Directory of all images  
+        data_path = os.path.join(img_dir,'*g') 
+        files = glob.glob(data_path) 
+        for f1 in files: 
+            img = cv2.imread(f1) 
+            self.images.append(img) 
+            
+    def calibrate_camera(square_size, width, height):
+        chessboard_images = self.images
         # use at least 10 images of the chessboard at different angles
         # square_size: the size of each square of the actual chessboard in cm
         # width and height are the dimensions of the chessboard
@@ -19,12 +32,12 @@ class callibration:
 
         cap = cv2.VideoCapture(0)
         found = 0
-        while(found < 10):  # Here, 10 can be changed to whatever number you like to choose
+        while(found < 2):  # Here, 10 can be changed to whatever number you like to choose
             ret, img = cap.read() # Capture frame-by-frame
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
             # Find the chess board corners
-            #ret, corners = cv2.findChessboardCorners(gray, (7,6),None)
+            ret, corners = cv2.findChessboardCorners(gray, (7,6),None)
 
             # If found, add object points, image points (after refining them)
             if ret == True:
@@ -38,3 +51,32 @@ class callibration:
         cap.release()
         ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
         return mtx, dist
+    
+    def undistortImage(image):
+        ret, cameraMatrix, dist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, frameSize, None, None)
+
+        ############## UNDISTORTION #####################################################
+
+        img = cv.imread(image)
+        h,  w = img.shape[:2]
+        newCameraMatrix, roi = cv.getOptimalNewCameraMatrix(cameraMatrix, dist, (w,h), 1, (w,h))
+
+
+        # Undistort
+        dst = cv.undistort(img, cameraMatrix, dist, None, newCameraMatrix)
+
+        # crop the image
+        x, y, w, h = roi
+        dst = dst[y:y+h, x:x+w]
+        cv.imwrite('caliResult1.png', dst)
+
+
+
+        # Undistort with Remapping
+        mapx, mapy = cv.initUndistortRectifyMap(cameraMatrix, dist, None, newCameraMatrix, (w,h), 5)
+        dst = cv.remap(img, mapx, mapy, cv.INTER_LINEAR)
+
+        # crop the image
+        x, y, w, h = roi
+        dst = dst[y:y+h, x:x+w]
+        cv.imwrite('caliResult2.png', dst)
