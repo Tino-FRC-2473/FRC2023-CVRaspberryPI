@@ -31,16 +31,10 @@ class callibration:
                 objpoints.append(objp)   # Certainly, every loop objp is the same, in 3D.
                 corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
                 imgpoints.append(corners2)
-
-                # Draw and display the corners
-                img = cv2.drawChessboardCorners(img, (7,6), corners2, ret)
+                
                 found += 1
-
-            cv2.imshow('img', img)
-            cv2.waitKey(10)
 
         # When everything done, release the capture
         cap.release()
-        cv2.destroyAllWindows()
-
-        return ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+        return mtx, dist
