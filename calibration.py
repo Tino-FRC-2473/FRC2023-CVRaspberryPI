@@ -12,11 +12,6 @@ class calibration:
         self.images = []
         self.objpoints = []  # 3d point in real world space
         self.imgpoints = []  # 2d points in image plane.
-        self.images_dir = 'pathname'
-        self.images_format = '.jpg'
-        self.square_size = 0.0
-        self.width = 0
-        self.height = 0
 
     def load_images(self, directory):
         img_dir = directory# Enter Directory of all images  
@@ -60,7 +55,7 @@ class calibration:
         return [mtx, dist]
     
     def undistortImage(self, image):
-        mtx, dist = calibrate_chessboard(self.images_dir, self.images_format, self.square_size, self.width, self.height)
+        mtx, dist = calibrate_chessboard(self.square_size, self.width, self.height)
 
         img = cv.imread(image)
         h,  w = img.shape[:2]
