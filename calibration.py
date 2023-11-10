@@ -21,10 +21,10 @@ class calibration:
             img = cv2.imread(f1) 
             self.images.append(img) 
 
-        print(self.images)
+        print(len(self.images))
             
     def calibrate_chessboard(self, square_size, width, height):
-        chessboard_images = self.images
+        # chessboard_images = self.images
         # use at least 10 images of the chessboard at different angles
         # square_size: the size of each square of the actual chessboard in cm
         # width and height are the dimensions of the chessboard
@@ -35,20 +35,21 @@ class calibration:
         # prepares object points defined in a 3D space (Z coordinates set to 0)
         objp = objp * square_size
         
-        # arrays from object points and image points from all images
-        self.objpoints = [] # 3d points in the real world space
-        self.imgpoints = [] # 2d points in the image plane
+        # # arrays from object points and image points from all images
+        # self.objpoints = [] # 3d points in the real world space
+        # self.imgpoints = [] # 2d points in the image plane
 
         #Iterate through all images
-        for fname in chessboard_images:
-            img = cv2.imread(str(fname))
+        for img in self.images:
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
             # Find the chess board corners
             ret, corners = cv2.findChessboardCorners(gray, (width, height), None)
+            print(corners)
 
             # If found, add object points, image points (after refining them)
             if ret:
+                print("in the if statement")
                 self.objpoints.append(objp)   # Certainly, every loop objp is the same, in 3D.
                 corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
                 self.imgpoints.append(corners2)
