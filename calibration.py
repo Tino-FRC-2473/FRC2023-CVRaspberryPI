@@ -20,6 +20,8 @@ class calibration:
         for f1 in files: 
             img = cv2.imread(f1) 
             self.images.append(img) 
+
+        print(self.images)
             
     def calibrate_chessboard(self, square_size, width, height):
         chessboard_images = self.images
