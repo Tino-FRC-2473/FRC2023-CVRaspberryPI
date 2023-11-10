@@ -57,27 +57,27 @@ class calibration:
         ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, gray.shape[::-1], None, None)
         return [mtx, dist]
     
-    def undistortImage(self, image):
-        mtx, dist = calibrate_chessboard(self.square_size, self.width, self.height)
+    def undistortImage(self, img, square_size, width, height):
+        mtx, dist = self.calibrate_chessboard(square_size, width, height)
 
-        img = cv.imread(image)
+        # img = cv2.imread(image)
         h,  w = img.shape[:2]
-        newCameraMatrix, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
+        newCameraMatrix, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
 
 
         # Undistort
-        dst = cv.undistort(img, mtx, dist, None, newCameraMatrix)
+        dst = cv2.undistort(img, mtx, dist, None, newCameraMatrix)
 
         # crop the image
         x, y, w, h = roi
         dst = dst[y:y+h, x:x+w]
-        cv.imwrite('caliResult1.png', dst)
+        cv2.imwrite('caliResult1.png', dst)
 
         # Undistort with Remapping
-        mapx, mapy = cv.initUndistortRectifyMap(mtx, dist, None, newCameraMatrix, (w,h), 5)
-        dst = cv.remap(img, mapx, mapy, cv.INTER_LINEAR)
+        mapx, mapy = cv2.initUndistortRectifyMap(mtx, dist, None, newCameraMatrix, (w,h), 5)
+        dst = cv2.remap(img, mapx, mapy, cv2.INTER_LINEAR)
 
         # crop the image
         x, y, w, h = roi
         dst = dst[y:y+h, x:x+w]
-        cv.imwrite('caliResult2.png', dst)
+        cv2.imwrite('caliResult2.png', dst)
