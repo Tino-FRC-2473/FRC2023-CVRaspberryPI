@@ -12,6 +12,11 @@ class calibration:
         self.images = []
         self.objpoints = []  # 3d point in real world space
         self.imgpoints = []  # 2d points in image plane.
+        self.images_dir = 'pathname'
+        self.images_format = '.jpg'
+        self.square_size = 0.0
+        self.width = 0
+        self.height = 0
 
     def load_images(self, directory):
         img_dir = directory# Enter Directory of all images  
@@ -21,7 +26,7 @@ class calibration:
             img = cv2.imread(f1) 
             self.images.append(img) 
             
-    def calibrate_camera(self, square_size, width, height):
+    def calibrate_chessboard(self, square_size, width, height):
         chessboard_images = self.images
         # use at least 10 images of the chessboard at different angles
         # square_size: the size of each square of the actual chessboard in cm
@@ -34,39 +39,36 @@ class calibration:
         objp = objp * square_size
         
         # arrays from object points and image points from all images
+        self.objpoints = [] # 3d points in the real world space
+        self.imgpoints = [] # 2d points in the image plane
 
-        cap = cv2.VideoCapture(0)
-        found = 0
-        while(found < 2):  # Here, 10 can be changed to whatever number you like to choose
-            ret, img = cap.read() # Capture frame-by-frame
+        #Iterate through all images
+        for fname in chessboard_images:
+            img = cv2.imread(str(fname))
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
             # Find the chess board corners
-            ret, corners = cv2.findChessboardCorners(gray, (7,6),None)
+            ret, corners = cv2.findChessboardCorners(gray, (width, height), None)
 
             # If found, add object points, image points (after refining them)
-            if ret == True:
-                objpoints.append(objp)   # Certainly, every loop objp is the same, in 3D.
+            if ret:
+                self.objpoints.append(objp)   # Certainly, every loop objp is the same, in 3D.
                 corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
-                imgpoints.append(corners2)
+                self.imgpoints.append(corners2)
                 
-                found += 1
-
-        # When everything done, release the capture
-        cap.release()
         ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, gray.shape[::-1], None, None)
-        return mtx, dist
+        return [mtx, dist]
     
     def undistortImage(self, image):
-        ret, cameraMatrix, dist, rvecs, tvecs = cv.calibrateCamera(self.objpoints, self.imgpoints, frameSize, None, None)
+        mtx, dist = calibrate_chessboard(self.images_dir, self.images_format, self.square_size, self.width, self.height)
 
         img = cv.imread(image)
         h,  w = img.shape[:2]
-        newCameraMatrix, roi = cv.getOptimalNewCameraMatrix(cameraMatrix, dist, (w,h), 1, (w,h))
+        newCameraMatrix, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
 
 
         # Undistort
-        dst = cv.undistort(img, cameraMatrix, dist, None, newCameraMatrix)
+        dst = cv.undistort(img, mtx, dist, None, newCameraMatrix)
 
         # crop the image
         x, y, w, h = roi
@@ -74,7 +76,7 @@ class calibration:
         cv.imwrite('caliResult1.png', dst)
 
         # Undistort with Remapping
-        mapx, mapy = cv.initUndistortRectifyMap(cameraMatrix, dist, None, newCameraMatrix, (w,h), 5)
+        mapx, mapy = cv.initUndistortRectifyMap(mtx, dist, None, newCameraMatrix, (w,h), 5)
         dst = cv.remap(img, mapx, mapy, cv.INTER_LINEAR)
 
         # crop the image
