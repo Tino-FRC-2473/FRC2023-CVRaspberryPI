@@ -41,8 +41,10 @@ class calibration:
 
         #Iterate through all images
         for img in self.images:
-            img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-            gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            #cv2.imshow('',gray)
+            #cv2.waitKey(0)
+            #cv2.destroyAllWindows()
             #cv2.imwrite('gray_image.png', gray)
 
             # Find the chess board corners
