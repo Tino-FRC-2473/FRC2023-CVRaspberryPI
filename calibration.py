@@ -41,11 +41,13 @@ class calibration:
 
         #Iterate through all images
         for img in self.images:
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+            gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+            #cv2.imwrite('gray_image.png', gray)
 
             # Find the chess board corners
             ret, corners = cv2.findChessboardCorners(gray, (width, height), None)
-            print(corners)
+            print(ret)
 
             # If found, add object points, image points (after refining them)
             if ret:
