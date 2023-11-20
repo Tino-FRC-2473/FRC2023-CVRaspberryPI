@@ -101,7 +101,7 @@ class AprilTag():
             print(f"An error occurred: {e}")
             return None
         
-    def estimate_3d_pose(self, image):
+    def estimate_3d_pose(self, image, frame_ann):
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
             # Create an AprilTag detector
@@ -127,7 +127,7 @@ class AprilTag():
                     rvec, tvec= self.estimate_pose_single_marker(corners[i], 0.05, self.camera_matrix, self.dist_coeffs)
                     pose_data[ids[i][0]] = (tvec, rvec)
                     # Draw the 3D pose axis on the image
-                    self.draw_axis_on_image(image, self.camera_matrix, self.dist_coeffs, rvec, tvec, 0.1)
+                    self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, 0.1)
 
                 # Display the result
                 cv2.imshow('AprilTag Pose Estimation', image)

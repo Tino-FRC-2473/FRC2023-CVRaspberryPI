@@ -1,13 +1,8 @@
 import cv2
 import math
-
+from vision_input import VisionInput
 
 class Target:
-    FOV = (50.28, 29.16)
-    RES = (1280, 720)
-    CAM_HEIGHT = 0.15
-    CAM_ANGLE = 0
-
     def __init__(self, contour, target_type):
         self.contour = contour
         self.target_type = target_type
@@ -28,22 +23,21 @@ class Target:
     def get_yaw_degrees(self):
         x, y, w, h = self.getBoundingRect()
         center_tag = x + (w/2)
-        print(x)
-        center_cam = Target.RES[0]/2
+        center_cam = VisionInput.RES[0]/2
         B = center_tag - center_cam
         A = center_cam
-        theta = math.atan(B * math.tan(math.radians(Target.FOV[0] / 2)) / A)
+        theta = math.atan(B * math.tan(math.radians(VisionInput.FOV[0] / 2)) / A)
         return math.degrees(theta)
 
     def get_pitch_degrees(self):
         x, y, w, h = self.getBoundingRect()
         center_tag = y + (h/2)
-        center_cam = Target.RES[1]/2
+        center_cam = VisionInput.RES[1]/2
         B = center_cam - center_tag
         A = center_cam
-        theta = math.atan(B * math.tan(math.radians(Target.FOV[1] / 2)) / A)
+        theta = math.atan(B * math.tan(math.radians(VisionInput.FOV[1] / 2)) / A)
         return math.degrees(theta)
 
     def get_distance_meters(self):
         height = self.heights[self.getType()]
-        return (height - Target.CAM_HEIGHT) / math.tan(math.radians(Target.CAM_ANGLE + self.get_pitch_degrees()))
+        return (height - VisionInput.CAM_HEIGHT) / math.tan(math.radians(VisionInput.CAM_ANGLE + self.get_pitch_degrees()))
