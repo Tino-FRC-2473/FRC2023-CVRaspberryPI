@@ -7,7 +7,9 @@ import os
 class AprilTag():
 
     def __init__(self):
-        pass
+        self.camera_matrix = np.load('calibration_data/webcam_1_camera_matrix.npy')
+        self.dist_coeffs = np.load('calibration_data/webcam_1_dist_coeffs.npy')
+        #pass
 
     def calibrate_camera(self, images_directory, pattern_size, square_size):
         # Prepare object points based on the number of squares and their size
@@ -45,6 +47,8 @@ class AprilTag():
         ret, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(
             objpoints, imgpoints, gray.shape[::-1], None, None
         )
+        np.save('webcam_1_camera_matrix.npy', camera_matrix)
+        np.save('webcam_1_dist_coeffs.npy', dist_coeffs)
         if ret:
             print('Calibration completed')
         else:
