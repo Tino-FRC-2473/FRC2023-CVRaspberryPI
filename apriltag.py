@@ -7,81 +7,55 @@ import os
 class AprilTag():
 
     def __init__(self):
-        self.camera_matrix = np.load('calibration_data/webcam_1_camera_matrix.npy')
-        self.dist_coeffs = np.load('calibration_data/webcam_1_dist_coeffs.npy')
-        #pass
+        self.camera_matrix = np.load('calibration_data/camera2_matrix.npy')
+        self.dist_coeffs = np.load('calibration_data/camera2_dist.npy')
 
-    def calibrate_camera(self, images_directory, pattern_size, square_size):
-        # Prepare object points based on the number of squares and their size
-        objp = np.zeros((pattern_size[0] * pattern_size[1], 3), np.float32)
-        objp[:, :2] = np.mgrid[0:pattern_size[0], 0:pattern_size[1]].T.reshape(-1, 2) * square_size
+    def calibrate(self, dirpath, square_size, width, height, visualize=False):
+        """ Apply camera calibration operation for images in the given directory path. """
 
-        # Arrays to store object points and image points from all images
-        objpoints = []  # 3D points in real-world space
-        imgpoints = []  # 2D points in the image plane
+        # termination criteria
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
-        # Get the list of image files in the directory
-        image_files = [f for f in os.listdir(images_directory) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp'))]
+        # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(8,6,0)
+        objp = np.zeros((height*width, 3), np.float32)
+        objp[:, :2] = np.mgrid[0:width, 0:height].T.reshape(-1, 2)
 
-        for fname in image_files:
-            img_path = os.path.join(images_directory, fname)
-            img = cv2.imread(img_path)
+        objp = objp * square_size
+
+        # Arrays to store object points and image points from all the images.
+        objpoints = []  # 3d point in real world space
+        imgpoints = []  # 2d points in image plane.
+
+        images = os.listdir(dirpath)
+        for fname in images:
+            img = cv2.imread(os.path.join(dirpath, fname))
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-            # Find the chessboard corners
-            ret, corners = cv2.findChessboardCorners(gray, pattern_size, None)
+            # Find the chess board corners
+            ret, corners = cv2.findChessboardCorners(gray, (width, height), None)
 
-            # If found, add object points and image points
+            # If found, add object points, image points (after refining them)
             if ret:
                 objpoints.append(objp)
-                imgpoints.append(corners)
+
+                corners2 = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+                imgpoints.append(corners2)
 
                 # Draw and display the corners
-                img = cv2.drawChessboardCorners(img, pattern_size, corners, ret)
-                cv2.imshow('Chessboard Corners', img)
-                cv2.waitKey(500)  # Adjust the waiting time as needed
+                img = cv2.drawChessboardCorners(img, (width, height), corners2, ret)
 
-        cv2.destroyAllWindows()
+            if visualize:
+                cv2.imshow('img',img)
+                cv2.waitKey(0)
 
-        # Calibrate the camera
-        ret, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(
-            objpoints, imgpoints, gray.shape[::-1], None, None
-        )
-        np.save('webcam_1_camera_matrix.npy', camera_matrix)
-        np.save('webcam_1_dist_coeffs.npy', dist_coeffs)
-        if ret:
-            print('Calibration completed')
-        else:
-            print('Calibration failed')
+        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+        self.camera_matrix = mtx
+        self.dist_coeffs = dist
 
-        self.camera_matrix = camera_matrix
-        self.dist_coeffs = dist_coeffs
+        np.save('calibration_data/camera2_matrix.npy',mtx)
+        np.save('calibration_data/camera2_dist.npy',dist)
 
-    def estimate_pose_single_marker(self, corners, marker_size, camera_matrix, dist_coeffs):
-        try:
-            # Ensure corners is a NumPy array
-            corners = np.array(corners)
-
-            # Define the 3D coordinates of the marker corners in the marker coordinate system
-            marker_points_3d = np.array([[0, 0, 0], [marker_size, 0, 0], [marker_size, marker_size, 0], [0, marker_size, 0]], dtype=np.float32)
-
-            # Reshape the corners to a flat array
-            image_points_2d = corners.reshape(-1, 2)
-
-            # Convert image points to float32
-            image_points_2d = np.float32(image_points_2d)
-
-            # Solve PnP problem to estimate pose
-            _, rvec, tvec = cv2.solvePnP(marker_points_3d, image_points_2d, camera_matrix, dist_coeffs)
-
-            return rvec, tvec
-
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return None, None
-
-
-    def draw_axis_on_image(self, image, camera_matrix, dist_coeffs, rvec, tvec, size=0.1):
+    def draw_axis_on_image(self, image, camera_matrix, dist_coeffs, rvec, tvec, size=1):
         try:
             # Define axis length
             length = size
@@ -99,23 +73,53 @@ class AprilTag():
             cv2.line(image, tuple(axis_points_2d[0]), tuple(axis_points_2d[1]), (0, 0, 255), 2)  # X-axis (red)
             cv2.line(image, tuple(axis_points_2d[0]), tuple(axis_points_2d[2]), (0, 255, 0), 2)  # Y-axis (green)
             cv2.line(image, tuple(axis_points_2d[0]), tuple(axis_points_2d[3]), (255, 0, 0), 2)  # Z-axis (blue)
+
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            font_scale = 0.4
+            font_thickness = 1
+            text_color = (255, 0, 255)  # White color
+            text_position = (10, 30)  # Top-left corner coordinates
+            # Add text to the image
+            cv2.putText(image, str(tvec), text_position, font, font_scale, text_color, font_thickness)
+
+
             return image
 
         except Exception as e:
             print(f"An error occurred: {e}")
             return None
+
+    def estimate_pose_single_marker(self, corners, marker_size, camera_matrix, dist_coeffs):
+        try:
+            # Ensure corners is a NumPy array
+            corners = np.array(corners)
+            # Define the 3D coordinates of the marker corners in the marker coordinate system
+            #marker_points_3d = np.array([[0, 0, 0], [marker_size, 0, 0], [marker_size, marker_size, 0], [0, marker_size, 0]], dtype=np.float32)
+            marker_points_3d = np.array([[-marker_size / 2, -marker_size / 2, 0], [marker_size / 2, -marker_size / 2, 0], [marker_size / 2, marker_size / 2, 0], [-marker_size / 2, marker_size / 2, 0]], dtype=np.float32)
+
+            # Reshape the corners to a flat array
+            image_points_2d = corners.reshape(-1, 2)
+
+            # Convert image points to float32
+            image_points_2d = np.float32(image_points_2d)
+
+            # Solve PnP problem to estimate pose
+            _, rvec, tvec = cv2.solvePnP(marker_points_3d, image_points_2d, camera_matrix, dist_coeffs)
+            
+            return rvec, tvec * 39.3701
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return None, None
         
     def estimate_3d_pose(self, image, frame_ann):
+            ARUCO_LENGTH_METERS = 0.1524
+
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
             # Create an AprilTag detector
             aruco_dict = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_APRILTAG_16h5)
-            parameters = cv2.aruco.DetectorParameters()
-            parameters.adaptiveThreshWinSizeMin = 3
-            parameters.adaptiveThreshWinSizeMax = 23
-            parameters.adaptiveThreshWinSizeStep = 10
-            parameters.adaptiveThreshConstant = 7
-            detector = cv2.aruco.ArucoDetector(aruco_dict, detectorParams=parameters)
+            detector = cv2.aruco.ArucoDetector(aruco_dict)
             # Detect AprilTags in the image
             corners, ids, rejected_img_points = detector.detectMarkers(gray)
             pose_data = {}
@@ -128,7 +132,7 @@ class AprilTag():
                 # Estimate the pose of each detected marker
                 for i in range(len(ids)):
                     # Estimate the pose
-                    rvec, tvec= self.estimate_pose_single_marker(corners[i], 0.05, self.camera_matrix, self.dist_coeffs)
+                    rvec, tvec= self.estimate_pose_single_marker(corners[i], ARUCO_LENGTH_METERS, self.camera_matrix, self.dist_coeffs)
                     pose_data[ids[i][0]] = (tvec, rvec)
                     # Draw the 3D pose axis on the image
                     self.draw_axis_on_image(frame_ann, self.camera_matrix, self.dist_coeffs, rvec, tvec, 0.1)
