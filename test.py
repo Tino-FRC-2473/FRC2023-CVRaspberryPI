@@ -26,14 +26,14 @@ while True:
     annotated_frame = frame.copy()
     pose_data = tag_module.estimate_3d_pose(frame, annotated_frame)
     colored_objects = d.detectGameElement(frame, annotated_frame)
-    #print(pose_data)
+    print(pose_data)
     for target in colored_objects:
         type = target.getType()
         yaw = target.get_yaw_degrees()
         distance = target.get_distance_meters()
-        #print(type)
-        #print(yaw)
-        #print(distance)
+        # print(type)
+        # print(yaw)
+        # print(distance)
     cv2.imshow('result', annotated_frame)
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):

@@ -3,7 +3,10 @@ import cv2
 import matplotlib.pyplot as plt
 import os
 
-#basically fixes the intrinsic parameters and is the class that returns the 3D stuff
+# basically fixes the intrinsic parameters and is the class that returns the 3D stuff
+# printed 3dpose --> tvec (x: left/right, y: up/down, z: front/back), rvec
+# max z is 20 feet (detects, but not necessarily accurate); max x is 1 foot on either side
+# at 18 in -> max left/right was 4.5 in
 class AprilTag():
 
     def __init__(self):

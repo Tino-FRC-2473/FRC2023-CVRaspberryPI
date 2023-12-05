@@ -36,9 +36,25 @@ while True:
     cubeY = table.getDoubleTopic("cube_yaw").publish()
     cubeD = table.getDoubleTopic("cube_distance").publish()
 
+    poseTX = table.getDoubleTopic("pose_tvec_x").publish()
+    poseTY = table.getDoubleTopic("pose_tvec_y").publish()
+    poseTZ = table.getDoubleTopic("pose_tvec_z").publish()
+    poseRX = table.getDoubleTopic("pose_rvec_x").publish()
+    poseRY = table.getDoubleTopic("pose_rvec_x").publish()
+    poseRZ = table.getDoubleTopic("pose_rvec_x").publish()
+
     pose_data = tag_module.estimate_3d_pose(frame, annotated_frame)
     colored_objects = d.detectGameElement(frame, annotated_frame)
+    
     print(pose_data)
+
+    poseTX = pose_data[0][0]
+    poseTY = pose_data[0][1]
+    poseTZ = pose_data[0][2]
+    poseRX = pose_data[1][0]
+    poseRY = pose_data[1][1]
+    poseRZ = pose_data[1][2]
+
     for target in colored_objects:
         type = target.getType()
         yaw = target.get_yaw_degrees()
