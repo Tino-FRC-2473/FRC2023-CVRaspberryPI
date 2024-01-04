@@ -11,8 +11,7 @@ class Detector:
 
     def detectGameElement(self, array, objectsToDetect: list):
         frame = array
-        results = dict(zip(objectsToDetect,
-                           [None for i in range(len(objectsToDetect))]))
+        results = dict(zip(objectsToDetect, [None for i in range(len(objectsToDetect))]))
         cone = {
             "MEAN": [25.98, 241.47, 254.63],
             "STDEV": [2.64, 26.68, 1.72]
@@ -30,23 +29,19 @@ class Detector:
         }
         for object in objectsToDetect:
             hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            mask = cv2.inRange(hsv_frame,
-                               np.array(colors[object][1]),
-                               np.array(colors[object][0]))
+            mask = cv2.inRange(hsv_frame, np.array(colors[object][1]), np.array(colors[object][0]))
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
             morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
             mask = cv2.medianBlur(mask, 5)
             if (object == "CUBE"):
-                contours, hier = cv2.findContours(morph,
-                                                  cv2.RETR_EXTERNAL,
-                                                  cv2.CHAIN_APPROX_NONE)
+                contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
                 contours = sorted(contours, key=cv2.contourArea)
                 cnt = None
                 # contour = contours[len(contours) -1]
                 for contour in contours:  
-                    print("Area", cv2.contourArea(contour))
+                    #print("Area", cv2.contourArea(contour))
                     if(cv2.contourArea(contour)>1000):
-                        print("Added Area", cv2.contourArea(contour))
+                        #print("Added Area", cv2.contourArea(contour))
                         tx,ty,tw,th = cv2.boundingRect(contour)
                         #print(tx, ty, tw, th)
                         if (not (tx == 0 and ty == 0 and tw == frame.shape[1] and th == frame.shape[0])):
@@ -68,12 +63,8 @@ class Detector:
                     results[object] = Target(cnt, object)
 
             if (object == "CONE"):
-                straight_contours,
-                hier = cv2.findContours(morph,
-                                        cv2.RETR_EXTERNAL,
-                                        cv2.CHAIN_APPROX_NONE)[:2]
-                straight_contours = sorted(straight_contours,
-                                           key=cv2.contourArea)
+                straight_contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[:2]
+                straight_contours = sorted(straight_contours, key=cv2.contourArea)
                 cnt = None
 
                 for contour in straight_contours:
@@ -90,23 +81,18 @@ class Detector:
 
                 if cnt is not None:
                     x, y, w, h = cv2.boundingRect(cnt)
-                    cv2.rectangle(frame, (x, y),
-                                         (x + w, y + h), (0, 0, 255), 2)
-                    cv2.circle(frame, (int(x + w/2),
-                                       int(y + h/2)), radius=0,
-                               color=(0, 0, 255), thickness=5)
-                    cv2.putText(frame, object, (x, y - 5),
-                                cv2.FONT_HERSHEY_SIMPLEX,
-                                1.0, (0, 0, 255), 2, cv2.LINE_AA)
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
+                    cv2.circle(frame, (int(x + w/2), int(y + h/2)), radius=0, color=(0, 0, 255), thickness=5)
+                    cv2.putText(frame, object, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2, cv2.LINE_AA)
                     results[object] = Target(cnt, object)
                     results[object] = Target(temp_ctr_max, object)
 
-        while True:
-            cv2.imshow("o", frame)
-            if cv2.waitKey(0):
-                break
+       # while True:
+            #cv2.imshow("o", frame)
+            #if cv2.waitKey(0):
+                #break
 
-        cv2.destroyAllWindows()
+        #cv2.destroyAllWindows()
 
         return results
 
@@ -124,35 +110,30 @@ class Detector:
         frame = array
         results = dict(zip(rgb_col, [None for i in range(len(rgb_col))]))
 
-        print(rgb_col)
+        #print(rgb_col)
 
         for object in rgb_col:
             hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            mask = cv2.inRange(hsv_frame,
-                               np.array(color_dict_HSV[object][1]),
-                               np.array(color_dict_HSV[object][0]))
+            mask = cv2.inRange(hsv_frame, np.array(color_dict_HSV[object][1]), np.array(color_dict_HSV[object][0]))
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
             morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-            contours, hier = cv2.findContours(morph,
-                                              cv2.RETR_EXTERNAL,
-                                              cv2.CHAIN_APPROX_NONE)[:2]
+            contours, hier = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[:2]
             x = 0
             y = 0
             w = 0
             h = 0
             for contour in contours:
                 tx, ty, tw, th = cv2.boundingRect(contour)
-                print(tx, ty, tw, th)
+                #print(tx, ty, tw, th)
                 if (tw * th > w * h and not
-                   (tx == 0 and ty == 0 and
-                        tw == frame.shape[1] and th == frame.shape[0])):
+                   (tx == 0 and ty == 0 and tw == frame.shape[1] and th == frame.shape[0])):
                     x = tx
                     y = ty
                     w = tw
                     h = th
 
             results[object] = [x, y, w, h]
-            print("X: %2d, Y: %2d, W: %2d, H: %2d" % (x, y, w, h))
+            #print("X: %2d, Y: %2d, W: %2d, H: %2d" % (x, y, w, h))
             while True:
                 if cv2.waitKey(0):
                     break

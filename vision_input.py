@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import math
 from target import Target
+import time
 
 
 class VisionInput:
@@ -18,6 +19,10 @@ class VisionInput:
         pass
 
     def getFrame(self):
+        if not self.cap.isOpened():
+            print("cannot open cam")
+
+        time.sleep(0.02)
         ret, frame = self.cap.read()
 
         if not ret:
